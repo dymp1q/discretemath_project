@@ -9,39 +9,46 @@ def input_graph(filepath: str):
     with open(filepath, 'w', encoding = 'utf-8') as input_f:
         pass
 
-def read_graph(filepath, directed = False):
+def read_graph(directed = False):
+    """This function reads graps
     """
-    This function reads graps
-    """
+
     adjacency_dict = {}
 
-    with open(filepath, "r", encoding="utf-8") as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) == 2:
-                try:
-                    u = int(parts[0])
-                    v = int(parts[1])
-                except ValueError:
-                    u = parts[0]
-                    v = parts[1]
+    while True:
+        line = input("Ребро (u v)").strip()
+        if not line:
+            break
+        parts = line.split()
+        if len(parts) == 2:
+            try:
+                u = int(parts[0])
+                v = int(parts[1])
+            except ValueError:
+                u = parts[0]
+                v = parts[1]
 
-                if u not in adjacency_dict:
-                    adjacency_dict[u] = set()
-                adjacency_dict[u].add(v)
+            if u not in adjacency_dict:
+                adjacency_dict[u] = set()
+            adjacency_dict[u].add(v)
 
-                if not directed:
-                    if v not in adjacency_dict:
-                        adjacency_dict[v] = set()
-                    adjacency_dict[v].add(u)
-
-
+            if not directed:
                 if v not in adjacency_dict:
                     adjacency_dict[v] = set()
+                adjacency_dict[v].add(u)
 
-        final_graph = {node: list(neighbours) for node, neighbours in adjacency_dict.items()}
 
-        return final_graph
+            if v not in adjacency_dict:
+                adjacency_dict[v] = set()
+
+        else:
+            print("Некоректний ввід")
+            continue
+
+    final_graph = {node: list(neighbours) for node, neighbours in adjacency_dict.items()}
+
+    return final_graph
+
 
 def input_graph_visualisation(graph: dict):
     '''
