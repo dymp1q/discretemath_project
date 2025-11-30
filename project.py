@@ -2,22 +2,15 @@
 
 import argparse
 
-def input_graph(filepath: str):
-    '''
-    This function takes graph and write it inside file
-    '''
-    with open(filepath, 'w', encoding = 'utf-8') as input_f:
-        pass
-
 def read_graph(directed = False):
     """This function reads graps
     """
 
     adjacency_dict = {}
-
-    while True:
-        line = input("Ребро (u v)").strip()
-        if not line:
+    inp = true
+    while inp:
+        line = input("Ребро (u v) або 'stop' якщо ввели всі точки:").strip()
+        if not line or line == 'stop':
             break
         parts = line.split()
         if len(parts) == 2:
