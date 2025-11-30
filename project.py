@@ -42,6 +42,112 @@ def graph_input(directed = False):
     final_graph = {node: list(neighbours) for node, neighbours in adjacency_dict.items()}
 
     return final_graph
+    
+def add_vertex(graph, v):
+    """
+    Adds a new vertex v to the graph.
+    Does nothing if the vertex already exists.
+
+    graph : dict — graph in the form {vertex: [neighbors]}
+    v : any — the vertex to add
+
+    >>> g = {0: [1], 1: [0]}
+    >>> add_vertex(g, 2)
+    >>> g
+    {0: [1], 1: [0], 2: []}
+
+    >>> add_vertex(g, 1)
+    >>> g
+    {0: [1], 1: [0], 2: []}
+    """
+    if v not in graph:
+        graph[v] = []
+
+def remove_vertex(graph, v):
+    """
+    Removes vertex v from the graph.
+    Also removes all edges connected to this vertex.
+
+    graph : dict — graph in the form {vertex: [neighbors]}
+    v : vertex to remove
+
+    >>> g = {0: [1, 2], 1: [0], 2: [0]}
+    >>> remove_vertex(g, 2)
+    >>> g
+    {0: [1], 1: [0]}
+
+    >>> remove_vertex(g, 5)
+    >>> g
+    {0: [1], 1: [0]}
+    """
+    if v in graph:
+        del graph[v]
+    for u in graph:
+        if v in graph[u]:
+            graph[u].remove(v)
+
+def add_edge(graph, u, v, directed = False):
+    """
+    Adds an edge between vertices u and v.
+    If directed=False, the edge is added in both directions (undirected graph).
+    If the vertices do not exist, they are created automatically.
+
+    graph : dict — graph in the form {vertex: [neighbors]}
+    u, v : vertices to connect
+    directed : bool — whether the graph is directed
+
+    >>> g = {0: [1], 1: [0], 2: []}
+    >>> add_edge(g, 2, 0)
+    >>> g
+    {0: [1, 2], 1: [0], 2: [0]}
+
+    >>> add_edge(g, 2, 1, directed=True)
+    >>> g
+    {0: [1, 2], 1: [0], 2: [0, 1]}
+
+    >>> add_edge(g, 2, 0)   # edge already exists
+    >>> g
+    {0: [1, 2], 1: [0], 2: [0, 1]}
+    """
+    if u not in graph:
+        graph[u] = []
+    if v not in graph[u]:
+        graph[u].append(v)
+    
+    if not directed:
+        if v not in graph:
+            graph[v] = []
+        if u not in graph[v]:
+            graph[v].append(u)
+
+def remove_edge(graph, u , v, directed = False):
+    """
+    Removes the edge between vertices u and v.
+    If directed=False, removes the edge in both directions.
+    Does nothing if the edge does not exist.
+
+    graph : dict — graph in the form {vertex: [neighbors]}
+    u, v : vertices whose edge is removed
+    directed : bool — whether the graph is directed
+
+    >>> g = {0: [1, 2], 1: [0], 2: [0, 1]}
+    >>> remove_edge(g, 2, 1, directed=True)
+    >>> g
+    {0: [1, 2], 1: [0], 2: [0]}
+
+    >>> remove_edge(g, 0, 2)
+    >>> g
+    {0: [1], 1: [0], 2: []}
+
+    >>> remove_edge(g, 5, 6)   # nothing happens
+    >>> g
+    {0: [1], 1: [0], 2: []}
+    """
+    if u in graph and v in graph[u]:
+        graph[u].remove(v)
+    if not directed:
+        if v in graph and u in graph[v]:
+            graph[v].remove(u)
 
 def input_graph_visualisation(graph: dict):
     '''
