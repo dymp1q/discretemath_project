@@ -101,11 +101,11 @@ def add_edge(graph, u, v, directed = False):
     >>> g
     {0: [1, 2], 1: [0], 2: [0]}
 
-    >>> add_edge(g, 2, 1, directed=True)
+    >>> add_edge(g, 2, 1, directed = True)
     >>> g
     {0: [1, 2], 1: [0], 2: [0, 1]}
 
-    >>> add_edge(g, 2, 0)   # edge already exists
+    >>> add_edge(g, 2, 0)
     >>> g
     {0: [1, 2], 1: [0], 2: [0, 1]}
     """
@@ -139,7 +139,7 @@ def remove_edge(graph, u , v, directed = False):
     >>> g
     {0: [1], 1: [0], 2: []}
 
-    >>> remove_edge(g, 5, 6)   # nothing happens
+    >>> remove_edge(g, 5, 6)
     >>> g
     {0: [1], 1: [0], 2: []}
     """
