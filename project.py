@@ -2,8 +2,9 @@
 
 import argparse
 
-def read_graph(directed = False):
-    """This function reads graps
+def graph_input(directed = False):
+    """
+    This function reads graps
     """
 
     adjacency_dict = {}
