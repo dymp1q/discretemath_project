@@ -171,7 +171,46 @@ def bfs(graph: dict):
     return edges
 
 def check_planarity(graph: dict | list) -> bool:
-    pass
+    '''
+    Checks planarity of a graph.
+    '''
+    if isinstance(graph, list):
+        edges = set()
+        vertices = set()
+
+        for u, v in graph:
+            vertices.add(u)
+            vertices.add(v)
+
+            edges.add(tuple(sorted((u, v))))
+
+        V = len(vertices)
+        E = len(edges)
+
+    elif isinstance(graph, dict):
+        vertices = set(graph.keys())
+        edges = set()
+
+        for u in graph:
+            for v in graph[u]:
+                edge = tuple(sorted((u, v)))
+                edges.add(edge)
+
+        V = len(vertices)
+        E = len(edges)
+
+    else:
+        raise TypeError("Граф повинен бути поданий або у формі dict або list.")
+
+    if F is not None:
+        if V - E + F != 2:
+            return False
+
+    if V >= 3:
+        if E > 3 * V - 6:
+            return False
+
+    return True
 
 if __name__ == '__main__':
     import doctest
