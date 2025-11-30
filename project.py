@@ -170,7 +170,7 @@ def bfs(graph: dict):
 
     return edges
 
-def check_planarity(graph: dict | list) -> bool:
+def check_planarity(graph: dict | list, F = int | None=None) -> bool:
     '''
     Checks planarity of a graph.
     '''
