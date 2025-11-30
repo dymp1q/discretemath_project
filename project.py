@@ -2,10 +2,17 @@
 
 import argparse
 
-def read_graph(filepath, directed = False):
-    """This function reads graps
-    """
+def input_graph(filepath: str):
+    '''
+    This function takes graph and write it inside file
+    '''
+    with open(filepath, 'w', encoding = 'utf-8') as input_f:
+        pass
 
+def read_graph(filepath, directed = False):
+    """
+    This function reads graps
+    """
     adjacency_dict = {}
 
     with open(filepath, "r", encoding="utf-8") as f:
@@ -36,8 +43,6 @@ def read_graph(filepath, directed = False):
 
         return final_graph
 
-#print(read_graph("test_undirected.txt"))
-
 def input_graph_visualisation(graph: dict):
     '''
     Друкує вхідний граф у форматі "u -> v"
@@ -57,7 +62,7 @@ def planar_graph_visualisation(planar_graph: list):
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
 
-def dfs_method(graph: dict):
+def dfs(graph: dict):
     '''
     Обхід графа в глибину (DFS) без рекурсії.
     Повертає список ребер DFS-дерева у форматі (parent, child).
@@ -78,33 +83,101 @@ def dfs_method(graph: dict):
     '''
     if not graph:
         return []
+    if check_planarity(graph):
+        print(f'Граф - {graph}, який ви задали вже є планарним.')
+        print('Граф який ви ввели:')
+        input_graph_visualisation(graph)
+
+    else:
+        start = min(graph)
+
+        visited = set()
+        stack = [start]
+        parent = {}
+        edges = []
+
+        while stack:
+            u = stack.pop()
+            if u in visited:
+                continue
+            visited.add(u)
+            if u in parent:
+                edges.append((parent[u], u))
+            neighbors = sorted(graph.get(u, []))
+            for v in reversed(neighbors):
+                if v not in visited and v not in parent:
+                    parent[v] = u
+                    stack.append(v)
+        print('Граф який ви ввели:')
+        input_graph_visualisation(graph)
+        print('Найменший плананий граф:')
+        planar_graph_visualisation(edges)
+        return edges
+
+#print(dfs({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
+
+def bfs(graph: dict):
+    '''
+    Обхід графа в ширину (BFS) без рекурсії.
+    Повертає список ребер BFS-дерева у форматі (parent, child).
+
+    Стартуємо з найменшої вершини (min(graph)).
+
+    >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
+    >>> dfs_2(g)
+    Граф який ви ввели:
+    0 -> 1
+    0 -> 2
+    1 -> 3
+    Найменший плананий граф (BFS):
+    0 -> 1
+    0 -> 2
+    1 -> 3
+    [(0, 1), (0, 2), (1, 3)]
+    '''
+    if not graph:
+        return []
+
+    if check_planarity(graph):
+        print(f'Граф - {graph}, який ви задали вже є планарним.')
+        print('Граф який ви ввели:')
+        input_graph_visualisation(graph)
+        return
 
     start = min(graph)
 
     visited = set()
-    stack = [start]
+    queue = [start]
     parent = {}
     edges = []
 
-    while stack:
-        u = stack.pop()
+    while queue:
+        u = queue.pop(0)
+
         if u in visited:
             continue
         visited.add(u)
+
         if u in parent:
             edges.append((parent[u], u))
+
         neighbors = sorted(graph.get(u, []))
-        for v in reversed(neighbors):
+        for v in neighbors:
             if v not in visited and v not in parent:
                 parent[v] = u
-                stack.append(v)
+                queue.append(v)
+
     print('Граф який ви ввели:')
     input_graph_visualisation(graph)
-    print('Найменший плананий граф:')
+    print('Найменший плананий граф (BFS):')
     planar_graph_visualisation(edges)
+
     return edges
-#print(dfs_method({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
+
+def check_planarity(graph: dict | list) -> bool:
+    pass
 
 if __name__ == '__main__':
     import doctest
     doctest.testmod(verbose=True)
+
