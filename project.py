@@ -8,10 +8,10 @@ def graph_input(directed = False):
     """
 
     adjacency_dict = {}
-    inp = true
-    while inp:
+
+    while True:
         line = input("Ребро (u v) або 'stop' якщо ввели всі точки:").strip()
-        if not line or line == 'stop':
+        if line == 'stop':
             break
         parts = line.split()
         if len(parts) == 2:
@@ -42,7 +42,6 @@ def graph_input(directed = False):
     final_graph = {node: list(neighbours) for node, neighbours in adjacency_dict.items()}
 
     return final_graph
-
 
 def input_graph_visualisation(graph: dict):
     '''
