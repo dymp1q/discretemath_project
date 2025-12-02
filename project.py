@@ -1,7 +1,29 @@
 '''Знаходження максимального планарного підграфу'''
 
 import argparse
+import networkx as nx
+import matplotlib.pyplot as plt
 
+def planar_graph_visual(edges: dict[int, list]) -> None:
+    '''
+    Visualizes planar graph, by converting variable edges into list of typles, where each has a pair like A-B
+    '''
+    Graph_planar = nx.Graph()            # creates empty Graph, disoriented one
+    planar_list = []
+    for top_1 in edges:                          # dict -> list(pairs: (1,2),(3,1)...)
+        for top_2 in edges[top_1]:
+            planar_list.append((top_1, top_2))
+    Graph_planar.add_edges_from(planar_list) # add list of ribs
+    pos = nx.planar_layout(Graph_planar)     # adds each top its own coods by Fáry’s algorithm
+    nx.draw(
+        Graph_planar,
+        pos,
+        with_labels=True,
+        node_color='skyblue',
+        node_size=800,
+        font_size=12
+    )
+    plt.show()
 def graph_input(directed = False):
     """
     This function reads graps
