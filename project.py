@@ -169,7 +169,7 @@ def planar_graph_visualisation(planar_graph: list):
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
 
-def dfs(graph: dict):
+def dfs(graph: dict, faces: int):
     '''
     Обхід графа в глибину (DFS).
     Повертає список ребер DFS-дерева у форматі (parent, child).
@@ -188,7 +188,7 @@ def dfs(graph: dict):
     '''
     if not graph:
         return []
-    if check_planarity(graph):
+    if check_planarity(graph, faces):
         print(f'Граф - {graph}, який ви задали вже є планарним.')
         print('Граф який ви ввели:')
         input_graph_visualisation(graph)
@@ -221,7 +221,7 @@ def dfs(graph: dict):
 
 #print(dfs({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
 
-def bfs(graph: dict):
+def bfs(graph: dict, faces: int):
     '''
     Обхід графа в ширину (BFS).
     Повертає список ребер BFS-дерева у форматі (parent, child).
@@ -241,7 +241,7 @@ def bfs(graph: dict):
     if not graph:
         return []
 
-    if check_planarity(graph):
+    if check_planarity(graph, faces):
         print(f'Граф - {graph}, який ви задали вже є планарним.')
         print('Граф який ви ввели:')
         input_graph_visualisation(graph)
@@ -322,4 +322,3 @@ def check_planarity(graph: dict | list, F = int | None) -> bool:
 if __name__ == '__main__':
     import doctest
     doctest.testmod(verbose=True)
-
