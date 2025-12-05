@@ -2,7 +2,65 @@
 
 import argparse
 import matplotlib.pyplot as plt
+import networkx as nx
 
+
+def UI_read() -> dict | bool:
+    '''
+    reads 3 types of input into the console:
+    - file
+    - list
+    - matrix
+    output: dictionary
+    if there is an error in the format, returns a bool value - False
+    '''
+    consol_input = argparse.ArgumentParser(description=( # my command --help, call samll instruction
+        "Graph input reader:\n"
+        "- file   : provide filename, e.g., data.txt\n"
+        "- list   : provide list, e.g., [[1,2][4,1][1,3][3,2][2,4][4,3]]\n"
+        "- matrix : provide matrix, e.g., 0,1,0;1,0,1;0,0,1"
+    ))
+    consol_input.add_argument("mode") # adds mode argument
+    consol_input.add_argument("data") # adds data argument
+    consol_result = consol_input.parse_args()
+    mode = consol_result.mode
+    data = consol_result.data
+    graph = {}
+    try:
+        match mode:
+            case 'file':
+                with open(data, 'r', encoding='utf-8') as file:
+                    for line in file:
+                        line = line.strip().split(',')
+                        top_1 = int(line[0])
+                        top_2 = int(line[1])
+                        graph.setdefault(top_1, []).append(top_2)
+                        graph.setdefault(top_2, []).append(top_1)
+                print(graph)
+                return graph
+            case 'list':
+                data = eval(data)
+                count_of_tops = sorted(set([num for edge in data for num in edge])) # sorted list of vertices
+                for key in count_of_tops:       # creates list for each vertice
+                    graph[key] = []
+                for top_1, top_2 in data:          # makes dict with reverse conection
+                    graph[top_1].append(top_2)     # if A has B -> B has A
+                    graph[top_2].append(top_1)
+                return graph
+            case 'matrix':
+                data = data.split(';')
+                data = [part.split(',') for part in data]
+                for i in range(1,len(data)):
+                    graph[i] = []
+                for i in range(len(data)):              # for a row in matrix
+                    for j in range(len(data[i])):       # for a num in each row
+                        if data[i][j] == '1':           # if num has connecion 
+                            graph[i + 1].append(j + 1)  # append num to dict
+                return graph
+            case _:
+                return False
+    except:                     # if any other porblem went off
+        return False
 def graph_input(directed = False):
     """
     This function reads graps
@@ -318,6 +376,33 @@ def check_planarity(graph: dict | list, F = int | None) -> bool:
             return False
 
     return True
+    
+def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a graph, only if dict -> planar
+    '''
+    Visualizes planar graph by converting variable edges (adjacency dict)
+    into list of tuples, where each tuple is a pair like A-B
+    + planar check, if not planar, return bool variable - False
+    '''
+    Graph_planar = nx.Graph()
+    planar_list = []
+    for top_1 in edges:              # makes list of ribs
+        for top_2 in edges[top_1]:
+            planar_list.append((top_1, top_2))
+    Graph_planar.add_edges_from(planar_list)
+    try:
+        pos = nx.planar_layout(Graph_planar) # makes coord for each point as planar graph
+    except nx.NetworkXException: # if graph not planar
+        return False # if dict not planar 
+    nx.draw(
+        Graph_planar,
+        pos,
+        with_labels=True,
+        node_color='skyblue',
+        node_size=800,
+        font_size=12
+    )
+
+    plt.show()
 
 if __name__ == '__main__':
     import doctest
