@@ -404,6 +404,39 @@ def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a
 
     plt.show()
 
+def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
+    """
+    Writes a graph (adjacency dictionary) to a file in the format of a list of edges (u v),
+    where u and v are separated by a space.
+
+    For an undirected graph (directed=False), each edge is written only once.
+
+    Args:
+        filepath: Path to the file for writing.
+        graph: Adjacency dictionary {vertex: [neighbors]}.
+        directed: Whether the graph is directed.
+    """
+
+    edges_to_write = []
+    seen_edges = set()
+
+    for u, neighbours in graph.items():
+        for v in neighbours:
+            if directed:
+                edges_to_write.append(f"{u} {v}")
+            else:
+                edge = tuple(sorted((u, v)))
+                if edge not in seen_edges:
+                    seen_edges.add(edge)
+                    edges_to_write.append(f"{u} {v}")
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        for edge_line in edges_to_write:
+            f.write(edge_line + "\n")
+
+    print(f"Graph is written into the file '{filepath}' in format u v.")
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod(verbose=True)
