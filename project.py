@@ -227,18 +227,6 @@ def planar_graph_visualisation(planar_graph: list):
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
 
-def input_graph_visualisation(graph: dict):
-    '''
-    Друкує вхідний граф у форматі "u -> v"
-    '''
-    printed = set()
-    for u in sorted(graph):
-        for v in sorted(graph[u]):
-            edge = tuple(sorted((u, v)))
-            if edge not in printed:
-                printed.add(edge)
-                print(f"{u} -> {v}")
-
 def planar_graph_visualisation(planar_graph: list):
     '''
     Приймає список ребер (parent, child) і друкує їх у форматі "u -> v".
@@ -274,14 +262,6 @@ def dfs_tree(graph: dict):
 
     >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
     >>> dfs_tree(g)
-    Граф який ви ввели:
-    0 -> 1
-    0 -> 2
-    1 -> 3
-    Найменший плананий граф:
-    0 -> 1
-    1 -> 3
-    0 -> 2
     [(0, 1), (1, 3), (0, 2)]
     '''
     if not graph:
@@ -311,10 +291,6 @@ def dfs_tree(graph: dict):
                 if v not in visited and v not in parent:
                     parent[v] = u
                     stack.append(v)
-        print('Граф який ви ввели:')
-        input_graph_visualisation(graph)
-        print('Найменший плананий граф:')
-        planar_graph_visualisation(edges)
         return edges
 
 # print(dfs_tree({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
@@ -378,13 +354,6 @@ def bfs_tree(graph: dict):
     >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
     >>> bfs_tree(g)
     Граф який ви ввели:
-    0 -> 1
-    0 -> 2
-    1 -> 3
-    Найменший плананий граф (bfs):
-    0 -> 1
-    0 -> 2
-    1 -> 3
     [(0, 1), (0, 2), (1, 3)]
     '''
     if not graph:
@@ -418,12 +387,6 @@ def bfs_tree(graph: dict):
             if v not in visited and v not in parent:
                 parent[v] = u
                 queue.append(v)
-
-    print('Граф який ви ввели:')
-    input_graph_visualisation(graph)
-    print('Найменший плананий граф (bfs_tree):')
-    planar_graph_visualisation(edges)
-
     return edges
 
 def check_planarity(graph: dict | list, F = int | None) -> bool:
