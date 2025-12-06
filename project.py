@@ -227,13 +227,53 @@ def planar_graph_visualisation(planar_graph: list):
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
 
-def dfs(graph: dict, faces: int):
+def input_graph_visualisation(graph: dict):
     '''
-    Обхід графа в глибину (DFS).
+    Друкує вхідний граф у форматі "u -> v"
+    '''
+    printed = set()
+    for u in sorted(graph):
+        for v in sorted(graph[u]):
+            edge = tuple(sorted((u, v)))
+            if edge not in printed:
+                printed.add(edge)
+                print(f"{u} -> {v}")
+
+def planar_graph_visualisation(planar_graph: list):
+    '''
+    Приймає список ребер (parent, child) і друкує їх у форматі "u -> v".
+    '''
+    for parent, child in planar_graph:
+        print(f"{parent} -> {child}")
+
+def edges_to_adj_dict(edges: list[tuple[int, int]], vertices: list[int]) -> dict[int, list[int]]:
+    """
+    Зі списку ребер (u, v) будує неорієнтований граф
+    у вигляді словника: вершина -> список сусідів.
+    """
+    planar_graph = {}
+
+    for v in vertices:
+        planar_graph[v] = []
+
+    for u, v in edges:
+        if v not in planar_graph[u]:
+            planar_graph[u].append(v)
+        if u not in planar_graph[v]:
+            planar_graph[v].append(u)
+
+    for v in planar_graph:
+        planar_graph[v].sort()
+
+    return planar_graph
+
+def dfs_tree(graph: dict):
+    '''
+    Обхід графа в глибину (DFs).
     Повертає список ребер DFS-дерева у форматі (parent, child).
 
     >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
-    >>> dfs(g)
+    >>> dfs_tree(g)
     Граф який ви ввели:
     0 -> 1
     0 -> 2
@@ -246,10 +286,10 @@ def dfs(graph: dict, faces: int):
     '''
     if not graph:
         return []
-    if check_planarity(graph, faces):
-        print(f'Граф - {graph}, який ви задали вже є планарним.')
-        print('Граф який ви ввели:')
-        input_graph_visualisation(graph)
+    # if check_planarity(graph, faces):
+    #     print(f'Граф - {graph}, який ви задали вже є планарним.')
+    #     print('Граф який ви ввели:')
+    #     input_graph_visualisation(graph)
 
     else:
         start = min(graph)
@@ -277,20 +317,71 @@ def dfs(graph: dict, faces: int):
         planar_graph_visualisation(edges)
         return edges
 
-#print(dfs({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
+# print(dfs_tree({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
+# [(0, 1), (1, 3), (0, 2)]
 
-def bfs(graph: dict, faces: int):
+def get_all_edges(graph: dict) -> list:
+    """
+    Повертає список усіх неорієнтованих ребер у вигляді (u, v) з u < v.
+    """
+    edges = set()
+    for u, neighbors in graph.items():
+        for v in neighbors:
+            if u == v:
+                continue
+            # робимо порядок (менший, більший), щоб не дублювати ребра
+            if u < v:
+                edge = (u, v)
+            else: edge = (v, u)
+            edges.add(edge)
+    return sorted(edges)
+
+def build_maximal_planar_subgraph(graph: dict) -> dict[int, list[int]]:
+    """
+    Будує максимальний планарний підграф:
+    1) Беремо DFS-дерево (воно точно планарне).
+    2) Перебираємо решту ребер і додаємо лише ті, які не псують планарність.
+
+    Повертає список ребер планарного підграфу.
+    """
+    if not graph:
+        return {}
+    
+    else:
+        vertices = sorted(graph.keys())
+
+        tree_edges = dfs_tree(graph)
+        planar_edges = set(tree_edges)
+
+        all_edges = get_all_edges(graph)
+
+        for u, v in all_edges:
+            if (u, v) in planar_edges or (v, u) in planar_edges:
+                continue
+
+            candidate_edges = list(planar_edges) + [(u, v)]
+
+            if check_planarity(candidate_edges):
+                planar_edges.add((u, v))
+
+            result_edges = sorted(planar_edges)
+
+            planar_graph = edges_to_adj_dict(result_edges, vertices)
+
+    return planar_graph
+    
+def bfs_tree(graph: dict):
     '''
     Обхід графа в ширину (BFS).
     Повертає список ребер BFS-дерева у форматі (parent, child).
 
     >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
-    >>> bfs(g)
+    >>> bfs_tree(g)
     Граф який ви ввели:
     0 -> 1
     0 -> 2
     1 -> 3
-    Найменший плананий граф (BFS):
+    Найменший плананий граф (bfs):
     0 -> 1
     0 -> 2
     1 -> 3
@@ -299,11 +390,11 @@ def bfs(graph: dict, faces: int):
     if not graph:
         return []
 
-    if check_planarity(graph, faces):
-        print(f'Граф - {graph}, який ви задали вже є планарним.')
-        print('Граф який ви ввели:')
-        input_graph_visualisation(graph)
-        return
+    # if check_planarity(graph, faces):
+    #     print(f'Граф - {graph}, який ви задали вже є планарним.')
+    #     print('Граф який ви ввели:')
+    #     input_graph_visualisation(graph)
+    #     return
 
     start = min(graph)
 
@@ -330,7 +421,7 @@ def bfs(graph: dict, faces: int):
 
     print('Граф який ви ввели:')
     input_graph_visualisation(graph)
-    print('Найменший плананий граф (BFS):')
+    print('Найменший плананий граф (bfs_tree):')
     planar_graph_visualisation(edges)
 
     return edges
