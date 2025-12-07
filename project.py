@@ -25,6 +25,12 @@ def UI_read() -> dict | bool:
     consol_result = consol_input.parse_args()
     mode = consol_result.mode
     data = consol_result.data
+    print('================= Вибір =================')
+    print('       1. Йти за алгоритмом Argparse')
+    print('       2. Вести дані в Input')
+    choise = input('Введіть 1 або 2: ')
+    if choise == 2:
+        return graph_input()
     graph = {}
     try:
         match mode:
@@ -71,7 +77,7 @@ def graph_input(directed = False):
     while True:
         line = input("Ребро (u v) або 'stop' якщо ввели всі точки:").strip()
         if line == 'stop':
-            break
+            return adjacency_dict
         parts = line.split()
         if len(parts) == 2:
             try:
@@ -219,13 +225,6 @@ def input_graph_visualisation(graph: dict):
             if edge not in printed:
                 printed.add(edge)
                 print(f"{u} -> {v}")
-
-def planar_graph_visualisation(planar_graph: list):
-    '''
-    Приймає список ребер (parent, child) і друкує їх у форматі "u -> v".
-    '''
-    for parent, child in planar_graph:
-        print(f"{parent} -> {child}")
 
 def planar_graph_visualisation(planar_graph: list):
     '''
@@ -431,33 +430,6 @@ def check_planarity(graph: dict | list, F = int | None) -> bool:
 
     return True
     
-def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a graph, only if dict -> planar
-    '''
-    Visualizes planar graph by converting variable edges (adjacency dict)
-    into list of tuples, where each tuple is a pair like A-B
-    + planar check, if not planar, return bool variable - False
-    '''
-    Graph_planar = nx.Graph()
-    planar_list = []
-    for top_1 in edges:              # makes list of ribs
-        for top_2 in edges[top_1]:
-            planar_list.append((top_1, top_2))
-    Graph_planar.add_edges_from(planar_list)
-    try:
-        pos = nx.planar_layout(Graph_planar) # makes coord for each point as planar graph
-    except nx.NetworkXException: # if graph not planar
-        return False # if dict not planar 
-    nx.draw(
-        Graph_planar,
-        pos,
-        with_labels=True,
-        node_color='skyblue',
-        node_size=800,
-        font_size=12
-    )
-
-    plt.show()
-
 def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
     """
     Writes a graph (adjacency dictionary) to a file in the format of a list of edges (u v),
@@ -489,8 +461,75 @@ def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
             f.write(edge_line + "\n")
 
     print(f"Graph is written into the file '{filepath}' in format u v.")
+def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a graph, only if dict -> planar
+    '''
+    Visualizes planar graph by converting variable edges (adjacency dict)
+    into list of tuples, where each tuple is a pair like A-B
+    + planar check, if not planar, return bool variable - False
+    '''
+    Graph_planar = nx.Graph()
+    planar_list = []
+    for top_1 in edges:              # makes list of ribs
+        for top_2 in edges[top_1]:
+            planar_list.append((top_1, top_2))
+    Graph_planar.add_edges_from(planar_list)
+    try:
+        pos = nx.planar_layout(Graph_planar) # makes coord for each point as planar graph
+    except nx.NetworkXException: # if graph not planar
+        return False # if dict not planar 
+    nx.draw(
+        Graph_planar,
+        pos,
+        with_labels=True,
+        node_color='skyblue',
+        node_size=800,
+        font_size=12
+    )
+
+    plt.show()
 
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod(verbose=True)
+    # import doctest
+    # doctest.testmod(verbose=True)
+    graph = UI_read()
+    if graph == 'False':
+        return 'Введені дані через argparse - неправильні'
+    ...#main algorithm, return planar dict()
+
+    
+    filepath = input('Введіть назву файлу для запису: ')
+    write_graph_to_file_uv(filepath, graph)
+    planar_graph_visual(graph) # stops there, cz constanly shows separeted window with planar graph
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
