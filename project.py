@@ -388,45 +388,82 @@ def bfs_tree(graph: dict):
                 queue.append(v)
     return edges
 
-def check_planarity(graph: dict | list, F = int | None) -> bool:
-    '''
-    Checks planarity of a graph.
-    '''
-    if isinstance(graph, list):
-        edges = set()
-        vertices = set()
+'''hmvbmb'''
+import networkx as nx
 
+def check_planarity(graph: dict | list) -> bool:
+    """
+    Checks planarity of a graph given.
+    """
+    vertices = set()
+    edges = set()
+
+    if isinstance(graph, list):
         for u, v in graph:
             vertices.add(u)
             vertices.add(v)
-
             edges.add(tuple(sorted((u, v))))
-
-        V = len(vertices)
-        E = len(edges)
-
     elif isinstance(graph, dict):
-        vertices = set(graph.keys())
-        edges = set()
-
         for u in graph:
+            vertices.add(u)
             for v in graph[u]:
-                edge = tuple(sorted((u, v)))
-                edges.add(edge)
-
-        V = len(vertices)
-        E = len(edges)
-
+                vertices.add(v)
+                edges.add(tuple(sorted((u, v))))
     else:
-        raise TypeError("Граф повинен бути поданий або у формі dict або list.")
+        raise TypeError("Граф повинен бути поданий у вигляді словника або списку.")
 
-    if F is not None:
-        if V - E + F != 2:
-            return False
+    graph1 = nx.Graph()
+    for v in vertices:
+        graph1.add_node(v)
+    for u, v in edges:
+        graph1.add_edge(u, v)
 
-    if V >= 3:
-        if E > 3 * V - 6:
-            return False
+    V = len(graph1.nodes)
+    E = len(graph1.edges)
+
+    if V >= 3 and E > 3 * V - 6:
+        return False
+
+    nodes_list = list(graph1.nodes)
+    n = len(nodes_list)
+
+    if n >= 5:
+        for i1 in range(n):
+            for i2 in range(i1 + 1, n):
+                for i3 in range(i2 + 1, n):
+                    for i4 in range(i3 + 1, n):
+                        for i5 in range(i4 + 1, n):
+                            nodes5 = [nodes_list[i1], nodes_list[i2], nodes_list[i3], nodes_list[i4], nodes_list[i5]]
+                            count = 0
+                            for a in range(5):
+                                for b in range(a + 1, 5):
+                                    if graph1.has_edge(nodes5[a], nodes5[b]):
+                                        count += 1
+                            if count == 10:
+                                return False
+
+    if n >= 6:
+        for i1 in range(n):
+            for i2 in range(i1 + 1, n):
+                for i3 in range(i2 + 1, n):
+                    for i4 in range(i3 + 1, n):
+                        for i5 in range(i4 + 1, n):
+                            for i6 in range(i5 + 1, n):
+                                nodes6 = [nodes_list[i1], nodes_list[i2], nodes_list[i3], nodes_list[i4], nodes_list[i5], nodes_list[i6]]
+
+                                for p1 in range(6):
+                                    for p2 in range(p1 + 1, 6):
+                                        for p3 in range(p2 + 1, 6):
+                                            left = [nodes6[p1], nodes6[p2], nodes6[p3]]
+                                            right = [x for x in nodes6 if x not in left]
+
+                                            count = 0
+                                            for a in left:
+                                                for b in right:
+                                                    if graph1.has_edge(a, b):
+                                                        count += 1
+                                            if count == 9:
+                                                return False
 
     return True
     
