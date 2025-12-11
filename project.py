@@ -27,7 +27,7 @@ def UI_read() -> dict | bool:
     data = consol_result.data
     print('================= Вибір =================')
     print('       1. Йти за алгоритмом Argparse')
-    print('       2. Вести дані в Input')
+    print('       2. Ввести дані в Input')
     choise = input('Введіть 1 або 2: ')
     if choise == 2:
         return graph_input()
@@ -67,6 +67,8 @@ def UI_read() -> dict | bool:
                 return False
     except:                     # if any other porblem went off
         return False
+
+
 def graph_input(directed = False):
     """
     This function reads graps
@@ -107,7 +109,8 @@ def graph_input(directed = False):
     final_graph = {node: list(neighbours) for node, neighbours in adjacency_dict.items()}
 
     return final_graph
-    
+
+
 def add_vertex(graph, v):
     """
     Adds a new vertex v to the graph.
@@ -151,6 +154,7 @@ def remove_vertex(graph, v):
         if v in graph[u]:
             graph[u].remove(v)
 
+
 def add_edge(graph, u, v, directed = False):
     """
     Adds an edge between vertices u and v.
@@ -185,6 +189,7 @@ def add_edge(graph, u, v, directed = False):
         if u not in graph[v]:
             graph[v].append(u)
 
+
 def remove_edge(graph, u , v, directed = False):
     """
     Removes the edge between vertices u and v.
@@ -214,6 +219,7 @@ def remove_edge(graph, u , v, directed = False):
         if v in graph and u in graph[v]:
             graph[v].remove(u)
 
+
 def input_graph_visualisation(graph: dict):
     '''
     Друкує вхідний граф у форматі "u -> v"
@@ -226,12 +232,14 @@ def input_graph_visualisation(graph: dict):
                 printed.add(edge)
                 print(f"{u} -> {v}")
 
+
 def planar_graph_visualisation(planar_graph: list):
     '''
     Приймає список ребер (parent, child) і друкує їх у форматі "u -> v".
     '''
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
+
 
 def edges_to_adj_dict(edges: list[tuple[int, int]], vertices: list[int]) -> dict[int, list[int]]:
     """
@@ -253,6 +261,7 @@ def edges_to_adj_dict(edges: list[tuple[int, int]], vertices: list[int]) -> dict
         planar_graph[v].sort()
 
     return planar_graph
+
 
 def dfs_tree(graph: dict):
     '''
@@ -295,6 +304,7 @@ def dfs_tree(graph: dict):
 # print(dfs_tree({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
 # [(0, 1), (1, 3), (0, 2)]
 
+
 def get_all_edges(graph: dict) -> list:
     """
     Повертає список усіх неорієнтованих ребер у вигляді (u, v) з u < v.
@@ -310,6 +320,7 @@ def get_all_edges(graph: dict) -> list:
             else: edge = (v, u)
             edges.add(edge)
     return sorted(edges)
+
 
 def build_maximal_planar_subgraph(graph: dict) -> dict[int, list[int]]:
     """
@@ -344,7 +355,8 @@ def build_maximal_planar_subgraph(graph: dict) -> dict[int, list[int]]:
             planar_graph = edges_to_adj_dict(result_edges, vertices)
 
     return planar_graph
-    
+
+
 def bfs_tree(graph: dict):
     '''
     Обхід графа в ширину (BFS).
@@ -388,8 +400,6 @@ def bfs_tree(graph: dict):
                 queue.append(v)
     return edges
 
-'''hmvbmb'''
-import networkx as nx
 
 def check_planarity(graph: dict | list) -> bool:
     """
@@ -466,7 +476,8 @@ def check_planarity(graph: dict | list) -> bool:
                                                 return False
 
     return True
-    
+
+
 def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
     """
     Writes a graph (adjacency dictionary) to a file in the format of a list of edges (u v),
@@ -498,6 +509,8 @@ def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
             f.write(edge_line + "\n")
 
     print(f"Graph is written into the file '{filepath}' in format u v.")
+
+
 def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a graph, only if dict -> planar
     '''
     Visualizes planar graph by converting variable edges (adjacency dict)
