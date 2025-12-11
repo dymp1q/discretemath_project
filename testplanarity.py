@@ -17,11 +17,6 @@ def read_graph_txt(path: str, directed: bool = False) -> dict[int, list[int]]:
 
     Повертає:
         dict[int, list[int]] — словник суміжності
-
-    Формат файлу:
-        0,1
-        1,2
-        2,3
     """
     graph = {}
     with open(path, "r", encoding="utf-8") as f:
@@ -86,15 +81,6 @@ def generate_grid_to_file(rows, cols, filename):
             кількість стовпців ґратки
         filename : str
             шлях до файлу, куди буде записано ребра
-
-    Формат вихідного файлу:
-        Кожен рядок містить одне ребро у вигляді:
-            u,v
-        Наприклад:
-            0,1
-            0,4
-            1,2
-            1,5
     """
     with open(filename, "w") as f:
         for r in range(rows):
