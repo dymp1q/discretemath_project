@@ -145,104 +145,79 @@ def planar_graph_visualisation(planar_graph: list):
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
 
-def check_planarity(graph) -> bool:
+def check_planarity(graph: dict | list) -> bool:
     """
-    check planarity
+    Перевірка планарності графа (dict або список ребер).
+    Використовується:
+    - Ейлерова межа: E <= 3V - 6
+    - K5 (5 вершин, 10 ребер)
+    - K3,3 (6 вершин, 9 ребер, двочастковість)
     """
     vertices = set()
     edges = set()
-    if isinstance(graph, dict):
+
+    if isinstance(graph, list):
+        for u, v in graph:
+            vertices.add(u)
+            vertices.add(v)
+            edges.add(tuple(sorted((u, v))))
+    elif isinstance(graph, dict):
         for u, nbrs in graph.items():
             vertices.add(u)
             for v in nbrs:
                 vertices.add(v)
-                if u == v:
-                    continue
-                a, b = (u, v) if u <= v else (v, u)
-                edges.add((a, b))
+                edges.add(tuple(sorted((u, v))))
     else:
-        for pair in graph:
-            if not pair:
-                continue
-            u, v = pair
-            vertices.add(u)
-            vertices.add(v)
-            if u == v:
-                continue
-            a, b = (u, v) if u <= v else (v, u)
-            edges.add((a, b))
+        raise TypeError("Граф повинен бути dict або list.")
 
     V = len(vertices)
     E = len(edges)
 
+    # Ейлерова межа
     if V >= 3 and E > 3 * V - 6:
         return False
 
     verts = list(vertices)
+    n = len(verts)
 
-    def combinations(lst, k):
-        n = len(lst)
-        if k > n:
-            return
-        idx = list(range(k))
-        while True:
-            yield [lst[i] for i in idx]
+    # Перевірка K5
+    if n >= 5:
+        for i1 in range(n):
+            for i2 in range(i1+1, n):
+                for i3 in range(i2+1, n):
+                    for i4 in range(i3+1, n):
+                        for i5 in range(i4+1, n):
+                            nodes5 = [verts[i1], verts[i2], verts[i3], verts[i4], verts[i5]]
+                            count = 0
+                            for a in range(5):
+                                for b in range(a+1, 5):
+                                    if tuple(sorted((nodes5[a], nodes5[b]))) in edges:
+                                        count += 1
+                            if count == 10:
+                                return False
 
-            for i in range(k - 1, -1, -1):
-                if idx[i] != i + n - k:
-                    break
-            else:
-                return
-            idx[i] += 1
-            for j in range(i + 1, k):
-                idx[j] = idx[j - 1] + 1
-
-    edges_set = edges
-    def induced_edge_count(subset):
-        sset = set(subset)
-        cnt = 0
-        for (u, v) in edges_set:
-            if u in sset and v in sset:
-                cnt += 1
-        return cnt
-
-    def is_bipartite_subset(subset):
-        sset = set(subset)
-
-        nbrs = {v: [] for v in subset}
-        for (u, v) in edges_set:
-            if u in sset and v in sset:
-                nbrs[u].append(v)
-                nbrs[v].append(u)
-
-        color = {}
-        for start in subset:
-            if start in color:
-                continue
-
-            queue = [start]
-            qi = 0
-            color[start] = 0
-            while qi < len(queue):
-                u = queue[qi]; qi += 1
-                for w in nbrs[u]:
-                    if w not in color:
-                        color[w] = 1 - color[u]
-                        queue.append(w)
-                    elif color[w] == color[u]:
-                        return False
-        return True
-
-    if V >= 5:
-        for comb in combinations(verts, 5):
-            if induced_edge_count(comb) == 10:
-                return False
-
-    if V >= 6:
-        for comb in combinations(verts, 6):
-            if induced_edge_count(comb) == 9 and is_bipartite_subset(comb):
-                return False
-
+    # Перевірка K3,3
+    if n >= 6:
+        for i1 in range(n):
+            for i2 in range(i1+1, n):
+                for i3 in range(i2+1, n):
+                    for i4 in range(i3+1, n):
+                        for i5 in range(i4+1, n):
+                            for i6 in range(i5+1, n):
+                                nodes6 = [verts[i1], verts[i2], verts[i3], verts[i4], verts[i5], verts[i6]]
+                                # Перебираємо усі розбиття 3+3
+                                for p1 in range(6):
+                                    for p2 in range(p1+1, 6):
+                                        for p3 in range(p2+1, 6):
+                                            left = [nodes6[p1], nodes6[p2], nodes6[p3]]
+                                            right = [x for x in nodes6 if x not in left]
+                                            count = 0
+                                            for a in left:
+                                                for b in right:
+                                                    if tuple(sorted((a,b))) in edges:
+                                                        count += 1
+                                            if count == 9:
+                                                return False
     return True
 
 def edges_of(graph: dict) -> list[tuple]:
