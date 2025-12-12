@@ -622,18 +622,38 @@ def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a
 
 
 if __name__ == '__main__':
-    # import doctest
-    # doctest.testmod(verbose=True)
-    graph = UI_read()
-    if graph == 'False':
-        return 'Введені дані через argparse - неправильні'
-    ...#main algorithm, return planar dict()
 
-    
-    filepath = input('Введіть назву файлу для запису: ')
-    write_graph_to_file_uv(filepath, graph)
-    planar_graph_visual(graph) # stops there, cz constanly shows separeted window with planar graph
-    
+    graph = UI_read()
+    if graph is False:
+        print("Введені дані через argparse — неправильні")
+        exit()
+
+    print("\n=== Вхідний граф ===")
+    input_graph_visualisation(graph)
+
+    print("\n=== Побудова максимального планарного підграфа ===")
+    planar_graph = build_maximal_planar_subgraph(graph)
+
+    print("\n=== Результат: планарний підграф ===")
+    print(planar_graph)
+
+    filepath = input("\nВведіть назву файлу для запису результату: ")
+    write_graph_to_file_uv(filepath, planar_graph)
+    print(f"Планарний підграф збережено у файл: {filepath}")
+
+    print("\nБажаєте візуалізувати отриманий планарний граф? (y/n)")
+    ans = input().strip().lower()
+
+    if ans == 'y':
+        ok = planar_graph_visual(planar_graph)
+        if ok is False:
+            print("Неможливо візуалізувати: граф не є планарним.")
+        else:
+            print("Візуалізацію завершено.")
+    else:
+        print("Візуалізацію пропущено.")
+
+    print("\n=== Програма завершена ===")
 
 
 
