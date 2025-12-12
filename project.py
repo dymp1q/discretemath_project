@@ -6,35 +6,32 @@ import networkx as nx
 
 
 def UI_read() -> dict | bool:
-    '''
-    reads 3 types of input into the console:
-    - file
-    - list
-    - matrix
-    output: dictionary
-    if there is an error in the format, returns a bool value - False
-    '''
-    consol_input = argparse.ArgumentParser(description=( # my command --help, call samll instruction
-        "Graph input reader:\n"
-        "- file   : provide filename, e.g., data.txt\n"
-        "- list   : provide list, e.g., [[1,2][4,1][1,3][3,2][2,4][4,3]]\n"
-        "- matrix : provide matrix, e.g., 0,1,0;1,0,1;0,0,1"
-    ))
-    consol_input.add_argument("mode") # adds mode argument
-    consol_input.add_argument("data") # adds data argument
+    consol_input = argparse.ArgumentParser(
+        description=(
+            "Graph input reader:\n"
+            "- file   : provide filename, e.g., data.txt\n"
+            "- list   : provide list, e.g., [[1,2],[4,1],[1,3]]\n"
+            "- matrix : provide matrix, e.g., 0,1,0;1,0,1;0,0,1\n"
+            "- input  : manual input via console"
+        ))
+    consol_input.add_argument("mode", nargs="?", default="input",
+                               help="file/list/matrix/input (default=input)")
+    consol_input.add_argument("data", nargs="?", default=None,
+                               help="graph data or filename (optional with input mode)")
     consol_result = consol_input.parse_args()
     mode = consol_result.mode
     data = consol_result.data
-    print('================= Вибір =================')
-    print('       1. Йти за алгоритмом Argparse')
-    print('       2. Вести дані в Input')
-    choise = input('Введіть 1 або 2: ')
-    if choise == '2':
+
+    if mode == "input":
         return graph_input()
+
     graph = {}
     try:
         match mode:
             case 'file':
+                if not data:
+                    print("Не вказано файл для читання.")
+                    return False
                 with open(data, 'r', encoding='utf-8') as file:
                     for line in file:
                         line = line.strip().split(',')
@@ -42,30 +39,37 @@ def UI_read() -> dict | bool:
                         top_2 = int(line[1])
                         graph.setdefault(top_1, []).append(top_2)
                         graph.setdefault(top_2, []).append(top_1)
-                print(graph)
                 return graph
             case 'list':
+                if not data:
+                    print("Не вказано список для читання.")
+                    return False
                 data = eval(data)
-                count_of_tops = sorted(set([num for edge in data for num in edge])) # sorted list of vertices
-                for key in count_of_tops:       # creates list for each vertice
+                count_of_tops = sorted(set([num for edge in data for num in edge]))
+                for key in count_of_tops:
                     graph[key] = []
-                for top_1, top_2 in data:          # makes dict with reverse conection
-                    graph[top_1].append(top_2)     # if A has B -> B has A
+                for top_1, top_2 in data:
+                    graph[top_1].append(top_2)
                     graph[top_2].append(top_1)
                 return graph
             case 'matrix':
+                if not data:
+                    print("Не вказано матрицю для читання.")
+                    return False
                 data = data.split(';')
                 data = [part.split(',') for part in data]
-                for i in range(1,len(data)):
+                for i in range(1, len(data)+1):
                     graph[i] = []
-                for i in range(len(data)):              # for a row in matrix
-                    for j in range(len(data[i])):       # for a num in each row
-                        if data[i][j] == '1':           # if num has connecion 
-                            graph[i + 1].append(j + 1)  # append num to dict
+                for i in range(len(data)):
+                    for j in range(len(data[i])):
+                        if data[i][j] == '1':
+                            graph[i + 1].append(j + 1)
                 return graph
             case _:
+                print("Невідомий режим вводу.")
                 return False
-    except:                     # if any other porblem went off
+    except Exception as e:
+        print("Помилка при читанні графа:", e)
         return False
 
 def graph_input(directed=False):
@@ -362,4 +366,5 @@ if __name__ == '__main__':
 
     if planar_graph_visual(planar) is False:
         print("Граф не є планарним для візуалізації.")
-    else: planar_graph_visual(planar)
+    else: 
+        planar_graph_visual(planar)
