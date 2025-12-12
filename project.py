@@ -6,45 +6,14 @@ import networkx as nx
 
 
 def UI_read() -> dict | bool:
-    """
-    Зчитує граф трьома різними способами залежно від вибору користувача:
-        1) з файлу,
-        2) зі списку ребер,
-        3) з матриці суміжності.
-
-    Функція використовує argparse для зчитування двох аргументів:
-        mode — спосіб введення ("file", "list" або "matrix")
-        data — самі дані (назва файлу, список або матриця)
-
-    Після цього користувач додатково вибирає спосіб:
-        1 — використати дані, отримані через argparse
-        2 — ввести граф вручну через консоль (викликається graph_input())
-
-    Повертає:
-        dict — словник суміжності графа у форматі:
-            { вершина: [список сусідів] }
-
-        bool - False — якщо введення некоректне або виникла помилка.
-
-    Формати введення:
-
-    --- Режим 'file' ---
-    Файл містить ребра у форматі:
-        u,v
-    Наприклад:
-        0,1
-        2,3
-        1,2
-
-    --- Режим 'list' ---
-    Список ребер передається як рядок:
-        [[0,1], [1,2], [2,0]]
-
-    --- Режим 'matrix' ---
-    Матриця суміжності подається як рядок, де рядки розділені крапкою з комою:
-        "0,1,0;1,0,1;0,1,0"
-    Індексація вершин починається з 1.
-    """
+    '''
+    reads 3 types of input into the console:
+    - file
+    - list
+    - matrix
+    output: dictionary
+    if there is an error in the format, returns a bool value - False
+    '''
     consol_input = argparse.ArgumentParser(description=( # my command --help, call samll instruction
         "Graph input reader:\n"
         "- file   : provide filename, e.g., data.txt\n"
@@ -58,9 +27,9 @@ def UI_read() -> dict | bool:
     data = consol_result.data
     print('================= Вибір =================')
     print('       1. Йти за алгоритмом Argparse')
-    print('       2. Ввести дані в Input')
+    print('       2. Вести дані в Input')
     choise = input('Введіть 1 або 2: ')
-    if choise == 2:
+    if choise == '2':
         return graph_input()
     graph = {}
     try:
@@ -99,35 +68,14 @@ def UI_read() -> dict | bool:
     except:                     # if any other porblem went off
         return False
 
-
-def graph_input(directed = False):
-    """
-    Зчитує граф у консольному режимі, дозволяючи користувачу по одному
-    вводити ребра у форматі: u v
-
-    де u та v — вершини (цілі числа або рядки).
-
-    Ввід завершується, коли користувач вводить:
-        stop
-
-    Параметри:
-        directed : bool (за замовчуванням False)
-        Якщо False — граф вважається неорієнтованим, тому при введенні
-        ребра u v автоматично додається і зворотне ребро v u.
-        Якщо True — додається лише ребро u → v.
-
-    Повертає:
-        dict
-        Словник суміжності у форматі:
-            { вершина: [список сусідів] }
-    """
-
+def graph_input(directed=False):
     adjacency_dict = {}
 
     while True:
         line = input("Ребро (u v) або 'stop' якщо ввели всі точки:").strip()
         if line == 'stop':
-            return adjacency_dict
+            break
+
         parts = line.split()
         if len(parts) == 2:
             try:
@@ -146,19 +94,16 @@ def graph_input(directed = False):
                     adjacency_dict[v] = set()
                 adjacency_dict[v].add(u)
 
-
             if v not in adjacency_dict:
                 adjacency_dict[v] = set()
-
         else:
             print("Некоректний ввід")
             continue
 
     final_graph = {node: list(neighbours) for node, neighbours in adjacency_dict.items()}
-
     return final_graph
 
-
+    
 def add_vertex(graph, v):
     """
     Adds a new vertex v to the graph.
@@ -166,15 +111,6 @@ def add_vertex(graph, v):
 
     graph : dict — graph in the form {vertex: [neighbors]}
     v : any — the vertex to add
-
-    >>> g = {0: [1], 1: [0]}
-    >>> add_vertex(g, 2)
-    >>> g
-    {0: [1], 1: [0], 2: []}
-
-    >>> add_vertex(g, 1)
-    >>> g
-    {0: [1], 1: [0], 2: []}
     """
     if v not in graph:
         graph[v] = []
@@ -183,18 +119,6 @@ def remove_vertex(graph, v):
     """
     Removes vertex v from the graph.
     Also removes all edges connected to this vertex.
-
-    graph : dict — graph in the form {vertex: [neighbors]}
-    v : vertex to remove
-
-    >>> g = {0: [1, 2], 1: [0], 2: [0]}
-    >>> remove_vertex(g, 2)
-    >>> g
-    {0: [1], 1: [0]}
-
-    >>> remove_vertex(g, 5)
-    >>> g
-    {0: [1], 1: [0]}
     """
     if v in graph:
         del graph[v]
@@ -202,95 +126,10 @@ def remove_vertex(graph, v):
         if v in graph[u]:
             graph[u].remove(v)
 
-
-def add_edge(graph, u, v, directed = False):
-    """
-    Adds an edge between vertices u and v.
-    If directed=False, the edge is added in both directions (undirected graph).
-    If the vertices do not exist, they are created automatically.
-
-    graph : dict — graph in the form {vertex: [neighbors]}
-    u, v : vertices to connect
-    directed : bool — whether the graph is directed
-
-    >>> g = {0: [1], 1: [0], 2: []}
-    >>> add_edge(g, 2, 0)
-    >>> g
-    {0: [1, 2], 1: [0], 2: [0]}
-
-    >>> add_edge(g, 2, 1, directed = True)
-    >>> g
-    {0: [1, 2], 1: [0], 2: [0, 1]}
-
-    >>> add_edge(g, 2, 0)
-    >>> g
-    {0: [1, 2], 1: [0], 2: [0, 1]}
-    """
-    if u not in graph:
-        graph[u] = []
-    if v not in graph[u]:
-        graph[u].append(v)
-    
-    if not directed:
-        if v not in graph:
-            graph[v] = []
-        if u not in graph[v]:
-            graph[v].append(u)
-
-
-def remove_edge(graph, u , v, directed = False):
-    """
-    Removes the edge between vertices u and v.
-    If directed=False, removes the edge in both directions.
-    Does nothing if the edge does not exist.
-
-    graph : dict — graph in the form {vertex: [neighbors]}
-    u, v : vertices whose edge is removed
-    directed : bool — whether the graph is directed
-
-    >>> g = {0: [1, 2], 1: [0], 2: [0, 1]}
-    >>> remove_edge(g, 2, 1, directed=True)
-    >>> g
-    {0: [1, 2], 1: [0], 2: [0]}
-
-    >>> remove_edge(g, 0, 2)
-    >>> g
-    {0: [1], 1: [0], 2: []}
-
-    >>> remove_edge(g, 5, 6)
-    >>> g
-    {0: [1], 1: [0], 2: []}
-    """
-    if u in graph and v in graph[u]:
-        graph[u].remove(v)
-    if not directed:
-        if v in graph and u in graph[v]:
-            graph[v].remove(u)
-
-
 def input_graph_visualisation(graph: dict):
-    """
-    Виводить неорієнтований граф у зручному для читання текстовому форматі.
-
-    Граф подається у вигляді словника суміжності:
-        { вершина: [список сусідів] }
-
-    Функція друкує кожне ребро рівно один раз
-    у форматі:
-        u -> v
-
-    Це досягається за рахунок збереження вже надрукованих ребер
-    та ігнорування повторів (v -> u).
-
-    Параметри:
-        graph : dict
-        Словник суміжності графа.
-
-    Призначення:
-    - візуальна перевірка коректності зчитування графа;
-    - зручне текстове представлення графа для користувача;
-    - допоміжна функція для дебагу.
-    """
+    '''
+    Друкує вхідний граф у форматі "u -> v"
+    '''
     printed = set()
     for u in sorted(graph):
         for v in sorted(graph[u]):
@@ -299,267 +138,177 @@ def input_graph_visualisation(graph: dict):
                 printed.add(edge)
                 print(f"{u} -> {v}")
 
-
 def planar_graph_visualisation(planar_graph: list):
-    """
-    Виводить список ребер у текстовому форматі.
-
-    Функція приймає граф у вигляді списку пар вершин:
-        [(u, v), (x, y), ...]
-
-    Кожна пара інтерпретується як ребро,
-    яке друкується у форматі:
-        u -> v
-
-    Параметри:
-        planar_graph : list[tuple]
-        Список ребер графа у вигляді пар (u, v).
-
-    Призначення:
-    - демонстрація результатів обходів графа;
-    - вивід проміжних структур алгоритму;
-    """
+    '''
+    Приймає список ребер (parent, child) і друкує їх у форматі "u -> v".
+    '''
     for parent, child in planar_graph:
         print(f"{parent} -> {child}")
 
-
-def edges_to_adj_dict(edges: list[tuple[int, int]], vertices: list[int]) -> dict[int, list[int]]:
+def check_planarity(graph) -> bool:
     """
-    Зі списку ребер (u, v) будує неорієнтований граф
-    у вигляді словника: вершина -> список сусідів.
-    """
-    planar_graph = {}
-
-    for v in vertices:
-        planar_graph[v] = []
-
-    for u, v in edges:
-        if v not in planar_graph[u]:
-            planar_graph[u].append(v)
-        if u not in planar_graph[v]:
-            planar_graph[v].append(u)
-
-    for v in planar_graph:
-        planar_graph[v].sort()
-
-    return planar_graph
-
-
-def dfs_tree(graph: dict):
-    '''
-    Обхід графа в глибину (DFs).
-    Повертає список ребер DFS-дерева у форматі (parent, child).
-
-    >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
-    >>> dfs_tree(g)
-    [(0, 1), (1, 3), (0, 2)]
-    '''
-    if not graph:
-        return []
-    # if check_planarity(graph, faces):
-    #     print(f'Граф - {graph}, який ви задали вже є планарним.')
-    #     print('Граф який ви ввели:')
-    #     input_graph_visualisation(graph)
-
-    else:
-        start = min(graph)
-
-        visited = set()
-        stack = [start]
-        parent = {}
-        edges = []
-
-        while stack:
-            u = stack.pop()
-            if u in visited:
-                continue
-            visited.add(u)
-            if u in parent:
-                edges.append((parent[u], u))
-            neighbors = sorted(graph.get(u, []))
-            for v in reversed(neighbors):
-                if v not in visited and v not in parent:
-                    parent[v] = u
-                    stack.append(v)
-        return edges
-
-# print(dfs_tree({0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}))
-# [(0, 1), (1, 3), (0, 2)]
-
-
-def get_all_edges(graph: dict) -> list:
-    """
-    Повертає список усіх неорієнтованих ребер у вигляді (u, v) з u < v.
-    """
-    edges = set()
-    for u, neighbors in graph.items():
-        for v in neighbors:
-            if u == v:
-                continue
-            # робимо порядок (менший, більший), щоб не дублювати ребра
-            if u < v:
-                edge = (u, v)
-            else: edge = (v, u)
-            edges.add(edge)
-    return sorted(edges)
-
-
-def build_maximal_planar_subgraph(graph: dict) -> dict[int, list[int]]:
-    """
-    Будує максимальний планарний підграф:
-    1) Беремо DFS-дерево (воно точно планарне).
-    2) Перебираємо решту ребер і додаємо лише ті, які не псують планарність.
-
-    Повертає список ребер планарного підграфу.
-    """
-    if not graph:
-        return {}
-    
-    else:
-        vertices = sorted(graph.keys())
-
-        tree_edges = dfs_tree(graph)
-        planar_edges = set(tree_edges)
-
-        all_edges = get_all_edges(graph)
-
-        for u, v in all_edges:
-            if (u, v) in planar_edges or (v, u) in planar_edges:
-                continue
-
-            candidate_edges = list(planar_edges) + [(u, v)]
-
-            if check_planarity(candidate_edges):
-                planar_edges.add((u, v))
-
-            result_edges = sorted(planar_edges)
-
-            planar_graph = edges_to_adj_dict(result_edges, vertices)
-
-    return planar_graph
-
-
-def bfs_tree(graph: dict):
-    '''
-    Обхід графа в ширину (BFS).
-    Повертає список ребер BFS-дерева у форматі (parent, child).
-
-    >>> g = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
-    >>> bfs_tree(g)
-    Граф який ви ввели:
-    [(0, 1), (0, 2), (1, 3)]
-    '''
-    if not graph:
-        return []
-
-    # if check_planarity(graph, faces):
-    #     print(f'Граф - {graph}, який ви задали вже є планарним.')
-    #     print('Граф який ви ввели:')
-    #     input_graph_visualisation(graph)
-    #     return
-
-    start = min(graph)
-
-    visited = set()
-    queue = [start]
-    parent = {}
-    edges = []
-
-    while queue:
-        u = queue.pop(0)
-
-        if u in visited:
-            continue
-        visited.add(u)
-
-        if u in parent:
-            edges.append((parent[u], u))
-
-        neighbors = sorted(graph.get(u, []))
-        for v in neighbors:
-            if v not in visited and v not in parent:
-                parent[v] = u
-                queue.append(v)
-    return edges
-
-
-def check_planarity(graph: dict | list) -> bool:
-    """
-    Checks planarity of a graph given.
+    check planarity
     """
     vertices = set()
     edges = set()
-
-    if isinstance(graph, list):
-        for u, v in graph:
+    if isinstance(graph, dict):
+        for u, nbrs in graph.items():
+            vertices.add(u)
+            for v in nbrs:
+                vertices.add(v)
+                if u == v:
+                    continue
+                a, b = (u, v) if u <= v else (v, u)
+                edges.add((a, b))
+    else:
+        for pair in graph:
+            if not pair:
+                continue
+            u, v = pair
             vertices.add(u)
             vertices.add(v)
-            edges.add(tuple(sorted((u, v))))
-    elif isinstance(graph, dict):
-        for u in graph:
-            vertices.add(u)
-            for v in graph[u]:
-                vertices.add(v)
-                edges.add(tuple(sorted((u, v))))
-    else:
-        raise TypeError("Граф повинен бути поданий у вигляді словника або списку.")
+            if u == v:
+                continue
+            a, b = (u, v) if u <= v else (v, u)
+            edges.add((a, b))
 
-    graph1 = nx.Graph()
-    for v in vertices:
-        graph1.add_node(v)
-    for u, v in edges:
-        graph1.add_edge(u, v)
-
-    V = len(graph1.nodes)
-    E = len(graph1.edges)
+    V = len(vertices)
+    E = len(edges)
 
     if V >= 3 and E > 3 * V - 6:
         return False
 
-    nodes_list = list(graph1.nodes)
-    n = len(nodes_list)
+    verts = list(vertices)
 
-    if n >= 5:
-        for i1 in range(n):
-            for i2 in range(i1 + 1, n):
-                for i3 in range(i2 + 1, n):
-                    for i4 in range(i3 + 1, n):
-                        for i5 in range(i4 + 1, n):
-                            nodes5 = [nodes_list[i1], nodes_list[i2], nodes_list[i3], nodes_list[i4], nodes_list[i5]]
-                            count = 0
-                            for a in range(5):
-                                for b in range(a + 1, 5):
-                                    if graph1.has_edge(nodes5[a], nodes5[b]):
-                                        count += 1
-                            if count == 10:
-                                return False
+    def combinations(lst, k):
+        n = len(lst)
+        if k > n:
+            return
+        idx = list(range(k))
+        while True:
+            yield [lst[i] for i in idx]
 
-    if n >= 6:
-        for i1 in range(n):
-            for i2 in range(i1 + 1, n):
-                for i3 in range(i2 + 1, n):
-                    for i4 in range(i3 + 1, n):
-                        for i5 in range(i4 + 1, n):
-                            for i6 in range(i5 + 1, n):
-                                nodes6 = [nodes_list[i1], nodes_list[i2], nodes_list[i3], nodes_list[i4], nodes_list[i5], nodes_list[i6]]
+            for i in range(k - 1, -1, -1):
+                if idx[i] != i + n - k:
+                    break
+            else:
+                return
+            idx[i] += 1
+            for j in range(i + 1, k):
+                idx[j] = idx[j - 1] + 1
 
-                                for p1 in range(6):
-                                    for p2 in range(p1 + 1, 6):
-                                        for p3 in range(p2 + 1, 6):
-                                            left = [nodes6[p1], nodes6[p2], nodes6[p3]]
-                                            right = [x for x in nodes6 if x not in left]
+    edges_set = edges
+    def induced_edge_count(subset):
+        sset = set(subset)
+        cnt = 0
+        for (u, v) in edges_set:
+            if u in sset and v in sset:
+                cnt += 1
+        return cnt
 
-                                            count = 0
-                                            for a in left:
-                                                for b in right:
-                                                    if graph1.has_edge(a, b):
-                                                        count += 1
-                                            if count == 9:
-                                                return False
+    def is_bipartite_subset(subset):
+        sset = set(subset)
+
+        nbrs = {v: [] for v in subset}
+        for (u, v) in edges_set:
+            if u in sset and v in sset:
+                nbrs[u].append(v)
+                nbrs[v].append(u)
+
+        color = {}
+        for start in subset:
+            if start in color:
+                continue
+
+            queue = [start]
+            qi = 0
+            color[start] = 0
+            while qi < len(queue):
+                u = queue[qi]; qi += 1
+                for w in nbrs[u]:
+                    if w not in color:
+                        color[w] = 1 - color[u]
+                        queue.append(w)
+                    elif color[w] == color[u]:
+                        return False
+        return True
+
+    if V >= 5:
+        for comb in combinations(verts, 5):
+            if induced_edge_count(comb) == 10:
+                return False
+
+    if V >= 6:
+        for comb in combinations(verts, 6):
+            if induced_edge_count(comb) == 9 and is_bipartite_subset(comb):
+                return False
 
     return True
 
+def edges_of(graph: dict) -> list[tuple]:
+    """
+    Список ребер (u, v), u < v.
+    """
+    edges = []
+    seen = set()
 
+    for u in graph:
+        for v in graph[u]:
+            if u == v:
+                continue
+            if u < v:
+                edge = (u, v)
+            else:
+                edge = (v, u)
+            if edge not in seen:
+                seen.add(edge)
+                edges.append(edge)
+
+    return edges
+
+
+def make_empty_copy(original: dict) -> dict:
+    """
+    Копія графа без ребер.
+    """
+    new_graph = {}
+    for v in original:
+        new_graph[v] = set()
+    return new_graph
+
+
+def add_edge(graph: dict, u, v) -> None:
+    if u not in graph:
+        graph[u] = set()
+    if v not in graph:
+        graph[v] = set()
+    graph[u].add(v)
+    graph[v].add(u)
+
+
+def remove_edge(graph: dict, u, v) -> None:
+    if u in graph and v in graph[u]:
+        graph[u].remove(v)
+    if v in graph and u in graph[v]:
+        graph[v].remove(u)
+
+
+def maximal_planar_subgraph(original: dict) -> dict:
+    """
+    Жадібний пошук максимального планарного підграфа з перевіркою на K3,3.
+    """
+    planar = make_empty_copy(original)
+    all_edges = edges_of(original)
+    all_edges.sort()
+
+    for (u, v) in all_edges:
+        add_edge(planar, u, v)
+
+        if not check_planarity(planar):
+            remove_edge(planar, u, v)
+
+    return planar
+    
 def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
     """
     Writes a graph (adjacency dictionary) to a file in the format of a list of edges (u v),
@@ -592,7 +341,6 @@ def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
 
     print(f"Graph is written into the file '{filepath}' in format u v.")
 
-
 def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a graph, only if dict -> planar
     '''
     Visualizes planar graph by converting variable edges (adjacency dict)
@@ -622,66 +370,21 @@ def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a
 
 
 if __name__ == '__main__':
+    # import doctest
+    # doctest.testmod(verbose=True)
+    graph = UI_read()  # читає граф через argparse або input
 
-    graph = UI_read()
     if graph is False:
-        print("Введені дані через argparse — неправильні")
+        print('Введені дані через argparse - неправильні')
         exit()
 
-    print("\n=== Вхідний граф ===")
-    input_graph_visualisation(graph)
+    # Будуємо максимальний планарний підграф
+    planar = maximal_planar_subgraph(graph)
 
-    print("\n=== Побудова максимального планарного підграфа ===")
-    planar_graph = build_maximal_planar_subgraph(graph)
+    # Запис у файл
+    filepath = input('Введіть назву файлу для запису (наприклад result.txt): ')
+    write_graph_to_file_uv(filepath, planar)
 
-    print("\n=== Результат: планарний підграф ===")
-    print(planar_graph)
-
-    filepath = input("\nВведіть назву файлу для запису результату: ")
-    write_graph_to_file_uv(filepath, planar_graph)
-    print(f"Планарний підграф збережено у файл: {filepath}")
-
-    print("\nБажаєте візуалізувати отриманий планарний граф? (y/n)")
-    ans = input().strip().lower()
-
-    if ans == 'y':
-        ok = planar_graph_visual(planar_graph)
-        if ok is False:
-            print("Неможливо візуалізувати: граф не є планарним.")
-        else:
-            print("Візуалізацію завершено.")
-    else:
-        print("Візуалізацію пропущено.")
-
-    print("\n=== Програма завершена ===")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if planar_graph_visual(planar) is False:
+        print("Граф не є планарним для візуалізації.")
+    else: planar_graph_visual(planar)
