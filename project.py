@@ -6,6 +6,16 @@ import networkx as nx
 
 
 def UI_read() -> dict | bool:
+    '''
+    Функція запису вхідного графу.
+    Варіанти запису:
+    1)Файл(graph.txt -> 0 1
+                        1 2)
+    2)List([[1,2],[4,1],[1,3]])
+    3)Matrix(0,1,0;1,0,1;0,0,1)
+    4)Input(вручну вписувати: 1 0
+                              2 0)
+    '''
     consol_input = argparse.ArgumentParser(
         description=(
             "Graph input reader:\n"
@@ -73,6 +83,9 @@ def UI_read() -> dict | bool:
         return False
 
 def graph_input(directed=False):
+    '''
+    Функція для записування через input
+    '''
     adjacency_dict = {}
 
     while True:
@@ -110,19 +123,14 @@ def graph_input(directed=False):
     
 def add_vertex(graph, v):
     """
-    Adds a new vertex v to the graph.
-    Does nothing if the vertex already exists.
-
-    graph : dict — graph in the form {vertex: [neighbors]}
-    v : any — the vertex to add
+    Функція яка додає вершину
     """
     if v not in graph:
         graph[v] = []
 
 def remove_vertex(graph, v):
     """
-    Removes vertex v from the graph.
-    Also removes all edges connected to this vertex.
+    Функція яка видаляє вершину
     """
     if v in graph:
         del graph[v]
@@ -257,6 +265,9 @@ def make_empty_copy(original: dict) -> dict:
 
 
 def add_edge(graph: dict, u, v) -> None:
+    '''
+    Функція яка додає ребро
+    '''
     if u not in graph:
         graph[u] = set()
     if v not in graph:
@@ -266,6 +277,9 @@ def add_edge(graph: dict, u, v) -> None:
 
 
 def remove_edge(graph: dict, u, v) -> None:
+    '''
+    Функція яка видаляє ребро
+    '''
     if u in graph and v in graph[u]:
         graph[u].remove(v)
     if v in graph and u in graph[v]:
@@ -274,7 +288,8 @@ def remove_edge(graph: dict, u, v) -> None:
 
 def maximal_planar_subgraph(original: dict) -> dict:
     """
-    Жадібний пошук максимального планарного підграфа з перевіркою на K3,3.
+    Жадібний пошук максимального планарного підграфа.
+    Додає по одному ребру і перевіряє на планарність.
     """
     planar = make_empty_copy(original)
     all_edges = edges_of(original)
@@ -290,15 +305,7 @@ def maximal_planar_subgraph(original: dict) -> dict:
     
 def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
     """
-    Writes a graph (adjacency dictionary) to a file in the format of a list of edges (u v),
-    where u and v are separated by a space.
-
-    For an undirected graph (directed=False), each edge is written only once.
-
-    Args:
-        filepath: Path to the file for writing.
-        graph: Adjacency dictionary {vertex: [neighbors]}.
-        directed: Whether the graph is directed.
+    Записує максимальний планарний граф в файл який напише користувач
     """
 
     edges_to_write = []
@@ -322,9 +329,7 @@ def write_graph_to_file_uv(filepath: str, graph: dict, directed: bool = False):
 
 def planar_graph_visual(edges: dict[int, list[int]]) -> None | bool:   # draws a graph, only if dict -> planar
     '''
-    Visualizes planar graph by converting variable edges (adjacency dict)
-    into list of tuples, where each tuple is a pair like A-B
-    + planar check, if not planar, return bool variable - False
+    Перевіряє чи граф який пройшов алгоритм справді планарний, і якщо так то малює графік за допмогою matplotlib & networkx
     '''
     Graph_planar = nx.Graph()
     planar_list = []
